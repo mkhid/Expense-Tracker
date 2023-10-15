@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import styled from "styled-components";
-import HomeComponent from "./modules/home";
-import myEvents from './events.json'; 
-
+import styled from 'styled-components';
+import HomeComponent from './modules/home';
+import axios from 'axios';
 
 const Container = styled.div`
   background-color: white;
@@ -17,7 +16,7 @@ const Container = styled.div`
   align-items: center;
   height: 100vh;
   width: 98%;
-  padding-top: 30px ;
+  padding-top: 30px;
   font-family: Montserrat;
 `;
 
@@ -32,16 +31,29 @@ const Header = styled.div`
   font-weight: bold;
 `;
 
-
 function App() {
-  const [expenseCalendar, setexpenseCalendar] = useState(false);
+  const [expenseCalendar, setExpenseCalendar] = useState(false);
+  const [events, setEvents] = useState([]);
 
   const toggleCalendar = () => {
-    setexpenseCalendar(!expenseCalendar);
+    setExpenseCalendar(!expenseCalendar);
   };
 
-  return (
+  // Fetch events from the server when the component mounts
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/events');
+        setEvents(response.data);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      }
+    };
 
+    fetchEvents();
+  }, []);
+
+  return (
     <Container>
       <Header>Expense Tracker</Header>
       <HomeComponent />
@@ -59,7 +71,7 @@ function App() {
           }}
           selectable={true}
           dateClick={(info) => alert(`You clicked on: ${info.dateStr}`)}
-          events= {myEvents}
+          events={events}
         />
       )}
     </Container>
